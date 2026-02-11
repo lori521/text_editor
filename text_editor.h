@@ -1,9 +1,8 @@
 #ifndef TEXT_EDITOR_H
 #define TEXT_EDITOR_H
 
-// TextEditor structure - TODO: define your own fields here
+// TextEditor structure 
 typedef struct TTextEditor {
-  // TODO: define any fields you need for your implementation
   struct Buffers *usedBuffers;
   
   int indexOfAddBuffer;
@@ -26,10 +25,6 @@ typedef struct Buffers {
   char *originalBuffer;
   char *addBuffer;
 } Buffers;
-
-// ============================================================================
-// API Functions - You MUST implement all of these
-// ============================================================================
 
 // Create a new text editor
 // filename: if not NULL, load content from this file
@@ -58,10 +53,7 @@ char *extract_current_text(TextEditor *editor);
 // Save text to file or return via text pointer
 void save_current_text(TextEditor *editor, const char *filename, char **text, int *global_cursor);
 
-// ============================================================================
-// Helper functions (optional - you can define your own)
-// ============================================================================
-
+/* helper functions */
 // aloca un nou nod pt piece table
 pieceTableNode *allocateNode(int bufferType, int bufferLength, int indexOfBuffer, pieceTableNode *nextColumn);
 
