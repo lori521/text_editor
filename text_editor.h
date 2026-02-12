@@ -54,28 +54,28 @@ char *extract_current_text(TextEditor *editor);
 void save_current_text(TextEditor *editor, const char *filename, char **text, int *global_cursor);
 
 /* helper functions */
-// aloca un nou nod pt piece table
+// allocate a new pieceTableNode
 pieceTableNode *allocateNode(int bufferType, int bufferLength, int indexOfBuffer, pieceTableNode *nextColumn);
 
-// adaugarea unui text in addBuffer
+// add text in addBuffer
 int addTextInBuffer (TextEditor *editor, char *text, int len);
 
-// returneaza partea care se rupe din nod
+// split pieceTableNode
 pieceTableNode *splitNode (TextEditor* editor, pieceTableNode *node, int relativeOffset);
 
-// citire din fisier si returnarea unui buffer care sa contina textul
+// read from file and extract text in a Buffer
 char *extractFileTextFromBuffer(char *filename, int *sizeOfTheFile);
 
-// eliberare a editorului de text
+// free text editor
 void freeTextEditor (TextEditor *editor);
 
-// inserare in lista de stari
+// insert node in state linked list
 void insertNodeInLinkedList(TextEditor *editor, pieceTableNode *newNode, pieceTableNode *curr, pieceTableNode *prev, int relativeOffset);
 
-// stergere din lista de stari
+// remove from linked list
 void removeNodeFromLinkedList(TextEditor *editor, pieceTableNode *startPositionPtr, pieceTableNode *endPositionPtr, pieceTableNode *previousStartPositionPtr, int offsetForStart, int offsetForEnd);
 
-// se gaseste pozitia relativa a unui nod
+// find relative position for a pieceTableNode
 void findNodePositionInLinkedList(TextEditor *editor, int searchedPosition, pieceTableNode **currentColumn, pieceTableNode **previousColumn, int *relativeOffset);
 
 #endif // TEXT_EDITOR_H

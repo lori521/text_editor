@@ -112,7 +112,6 @@ void add_text(TextEditor *editor, char *text) {
 
   addTextInBuffer(editor, text, strlen(text));
 
-  // aici chestie cu pozitie
   int relativeOffset = 0;
   int searchedPosition = editor->cursorPosition;
 
@@ -136,7 +135,6 @@ void delete_text(TextEditor *editor, int length) {
   if (startPosition < 0) 
     startPosition = 0;
 
-  // find where positions are
   pieceTableNode *currentColumn = editor->firstColumn;
   pieceTableNode *previousColumn = NULL;
   pieceTableNode *startPositionPtr = NULL;
@@ -154,7 +152,6 @@ void delete_text(TextEditor *editor, int length) {
     return; 
   }
 
-  // apel pt eliminare din lista 
   removeNodeFromLinkedList(editor, startPositionPtr, endPositionPtr, previousStartPositionPtr, offsetForStart, offsetForEnd);
   editor->addBufferLength -= length;
   editor->totalLength -= length;
@@ -177,13 +174,11 @@ char *extract_current_text(TextEditor *editor) {
   int writePosition = 0;
 
   while (ptr != NULL) {
-     // check buffer type
     char  *currentBuffer;
     if (ptr->bufferType == 0)
       currentBuffer = editor->usedBuffers->originalBuffer;
     else
       currentBuffer = editor->usedBuffers->addBuffer;
-    // copy length between parameters 
     memcpy(textFromTextEditor + writePosition, currentBuffer + ptr->indexOfBuffer, ptr->bufferLength);
     
     writePosition += ptr->bufferLength;
@@ -222,9 +217,8 @@ void save_current_text(TextEditor *editor, const char *filename,
     *global_cursor = editor->cursorPosition;
 }
 
-/* functii auxiliare pentru modularizarea codului */
-
-// alocarea unui nou nod pt piece table
+/* auxiliary functions for code modularization */
+// allocate a new pieceTableNode
 pieceTableNode *allocateNode(int bufferType, int bufferLength, int indexOfBuffer, pieceTableNode *nextColumn) {
   pieceTableNode *newNode = (pieceTableNode *)malloc(1 * sizeof(pieceTableNode));
   if (!newNode)
@@ -238,7 +232,7 @@ pieceTableNode *allocateNode(int bufferType, int bufferLength, int indexOfBuffer
   return newNode;
 }
 
-// adaugarea unui text in addBuffer
+// add text in addBuffer
 int addTextInBuffer (TextEditor *editor, char *text, int len) {
   while (editor->indexOfAddBuffer +len >= editor->addBufferLength) {
     // realloc
@@ -259,7 +253,7 @@ int addTextInBuffer (TextEditor *editor, char *text, int len) {
   return startIndex;
 }
 
-// se face split la nod
+// split pieceTableNode
 pieceTableNode *splitNode (TextEditor* editor, pieceTableNode *node, int relativeOffset) {
   int indexOfAddBuffer = node->indexOfBuffer + relativeOffset;
   int bufferedLength = node->bufferLength - relativeOffset;
@@ -272,7 +266,7 @@ pieceTableNode *splitNode (TextEditor* editor, pieceTableNode *node, int relativ
   return afterCursorPart;
 }
 
-// se gaseste pozitia relativa a unui nod
+// find relative position for a pieceTableNode
 void findNodePositionInLinkedList(TextEditor *editor, int searchedPosition, pieceTableNode **currentColumn, pieceTableNode **previousColumn, int *relativeOffset) {
   pieceTableNode *tempCurrentColumn = editor->firstColumn;
   pieceTableNode *tempPreviousColumn = NULL;
@@ -291,7 +285,7 @@ void findNodePositionInLinkedList(TextEditor *editor, int searchedPosition, piec
 }
 
 
-// citire din fisier si returnarea unui buffer care sa contina textul
+// read from file and extract text in a Buffer
 char *extractFileTextFromBuffer(char *filename, int *sizeOfTheFile) {
   FILE *file = fopen(filename, "r");
   if(file == NULL)
@@ -313,7 +307,7 @@ char *extractFileTextFromBuffer(char *filename, int *sizeOfTheFile) {
   return tempBufferForFileText;
 }
 
-// eliberare a editorului de text
+// free text editor
 void freeTextEditor (TextEditor *editor) {
   if (editor == NULL) 
     return;
@@ -339,7 +333,7 @@ void freeTextEditor (TextEditor *editor) {
   free(editor);
 }
 
-// inserare in lista de stari
+// insert node in state linked list
 void insertNodeInLinkedList(TextEditor *editor, pieceTableNode *newNode, pieceTableNode *currentColumn, pieceTableNode *previousColumn, int relativeOffset) {
   pieceTableNode *afterCursorPart = NULL;
 
@@ -356,7 +350,6 @@ void insertNodeInLinkedList(TextEditor *editor, pieceTableNode *newNode, pieceTa
     else 
       previousColumn->nextColumn = newNode;
   } else {
-    // aici apel la splitNode
     afterCursorPart = splitNode(editor, currentColumn, relativeOffset);
 
     currentColumn->bufferLength = relativeOffset;
@@ -370,7 +363,7 @@ void insertNodeInLinkedList(TextEditor *editor, pieceTableNode *newNode, pieceTa
   
 }
 
-// stergere din lista inlantuita
+// remove from linked list
 void removeNodeFromLinkedList(TextEditor *editor, pieceTableNode *startPositionPtr, pieceTableNode *endPositionPtr, pieceTableNode *previousStartPositionPtr, int offsetForStart, int offsetForEnd) {
   // case one for delete
   if (startPositionPtr == endPositionPtr) {

@@ -1,9 +1,8 @@
-## Implementare Text Editor
+## Text Editor Implementation
 
-### Prezentarea generala a structurii
+### General Structure Overview
 
-* Pentru Text Editor-ul pe care l-am avut de implementat am folosit o structura de date numita `Piece Table`. Am ales aceasta structura pentru a amortiza 
-costul operatiilor de adaugare si introducere de text.
+* For the Text Editor implementation, I utilized a data structure called `Piece Table`. I chose this structure to amortize the cost of add and insert operations.
 
 ```
 typedef struct Buffers {
@@ -12,8 +11,7 @@ typedef struct Buffers {
 } Buffers;
 ```
 
-* Am ales sa fac o structura separata pentru cele doua buffere in care se poate scrie, respectiv `originalBuffer` si `addBuffer`. In `originalBuffer` se pune
-textul deja existent in Text Editor atunci cand el este deschis, iar in `addBuffer` se pune textul pe care il scrie utilizatorul.
+* I chose to create a separate structure for the two buffers where writing can occur: `originalBuffer` and `addBuffer`. The `originalBuffer` stores the text that already exists in the Text Editor when opened, while `addBuffer` stores the text written by the user.
 
 ```
 typedef struct pieceTableNode {
@@ -24,9 +22,7 @@ typedef struct pieceTableNode {
 } pieceTableNode;
 ```
 
-* Fiecare modificare se retine cu ajutorul unui nod dintr-o lista inlantuita, respectiv `pieceTableNode`. Structura contine tipul buffer-ului in care
-se face scrierea (`bufferType`), indexul la care se face aceasta scriere (`indexOfBuffer`), lungimea textului si urmatorul nod din lista (`nextColumn`). Basically,
-aceasta lista permite implementarea operatiilor de `add_text` si `delete_text` fara sa se realizeze o **stergere propriu-zisa** a caracterelor din buffere, ci doar sa se stie cand s-a realizat o adaugare sau o stergere.
+* Each modification is retained using a node in a linked list, specifically a `pieceTableNode`. The structure contains the type of buffer where the writing occurs (`bufferType`), the index where this writing takes place (`indexOfBuffer`), the text length and the next node in the list (`nextColumn`). Basically, this list allows the implementation of `add_text` and `delete_text` operations without performing an **actual deletion** of characters from the buffers, but rather by tracking when an _addition_ or _deletion_ has occurred.
 
 ```
 typedef struct TTextEditor {
@@ -41,109 +37,99 @@ typedef struct TTextEditor {
   int totalNumberOfColumns;
 } TextEditor;
 ```
+* The text editor structure contains the two write buffers structure (`Buffers`), the write position where the user text is added (`indexOfAddBuffer`), its size (`addBufferLength`), the global cursor position in the Text Editor (`cursorPosition`), the total number of characters in the buffer (`totalLength`), the first state in the singly linked list (`firstColumn`), and the total number of such states within it (`totalNumberOfColumns`).
 
-* Structura de text editor contine structura cu cele doua buffere in care se fac scrierile (`Buffers`), pozitia de scriere la care se adauga de catre utilizator textul
-(`indexOfAddBuffer`), dimensiunea acestuia (`addBufferLength`), pozitia globala a cursorului in Text Editor (`cursorPosition`), numarul total de caractere din buffer (`totalLength`), prima stare din lista simplu inlantuita
-(`firstColumn`) si numarul total de astfel de stari din aceasta (`totalNumberOfColumns`).
-
-### Complexitatile functiilor implementate
+### Complexities of Implemented Functions
 
 ```
 TextEditor *create_table(const char *filename, const char *text, int global_cursor)
 ```
-* Functia aloca memoria pentru un nou Text Editor si initializeaza cele doua buffere. In functie e input datele sunt extrase dintr-un fisier sau dintr-un sir de caractere. Se creeaza si primul nod al listei.
-* **Complexitatea** acestei operatii este de **O(n)** deoarece trebuie parcurs textul din fisier sau sirul de caractere pentru a fi inserat in `originalBuffer`
+
+* The function allocates memory for a new Text Editor and initializes the two buffers. Depending on the input, data is extracted from a file or a character string. The first node of the list is also created.
+* The **complexity** of this operation is **O(n)** because the text from the file or string must be traversed to be inserted into `originalBuffer`.
 
 ```
 void advance_cursor(TextEditor *editor, int advance)
 ```
-* Functia muta cursorul cu un numar de pozitii primite in parametrul `advance` fie la _dreapta_ (_advance_ > 0), fie la _stanga_ (_advance_ < 0). 
-* **Complexitatea** operatiei de mutare a cursorului este **O(1)**, deoarece doar se acceseaza diferite variabile deci are o complexitate constanta.
+
+* The function moves the cursor by a number of positions received in the `advance` parameter, either to the _right_ (_advance_ > 0) or to the _left_ (_advance_ < 0).
+
+The **complexity** of the cursor movement operation is **O(1)**, as it only accesses variables, resulting in constant complexity.
 
 ```
 int show_global_cursor(TextEditor *editor)
 ```
-* Functia arata pozitia cursorului in Text Editor
-* **Complexitatea** acestei functii este una constanta si egala cu **O(1)** deoarece trebuie doar accesata variabila `cursorPosition` din structura Text Editor care 
-contine pozitia globala a cursorului
+* The function shows the cursor position in the Text Editor.
+* The **complexity** of this function is constant, **O(1)**, as it only requires accessing the `cursorPosition` variable from the Text Editor structure which holds the global cursor position.
 
 ```
 int show_total_len(TextEditor *editor)
 ```
-* Functia returneaza numarul total de caractere tinut in structura `Piece Table`.
-* **Complexitatea** este una constanta data de accesarea variabilei din structura, respectiv **O(1)**.
+* The function returns the total number of characters held in the `Piece Table` structure.
+The **complexity** is _constant_, determined by accessing the variable from the structure, **O(1)**.
 
 ```
 void add_text(TextEditor *editor, char *text)
 ```
-* Functia de inserare a textului adauga un nou sir de caractere in `addBuffer` a carui capacitate o dubleaza in cazul in care lungimea stringului este mai mare
-decat numarul de caractere care mai pot fi inserate in array. Se gaseste pozitia nodului unde trebuie facuta inserarea in lista si apoi se trateaza cazul
-respectiv de inserare. Daca inserarea se face in interiorul unui nod atunci se face split acestuia.
-* **Complexitatea** acestei functii depinde de numarul de noduri exitente in lista de stari si de lungimea textului adaugat in `addBuffer`. Aceasta este liniara, fiind de forma _O(nr noduri + lungimea textului)_, deci o putem considera **O(n)**.
+* The text insertion function adds a new string to `addBuffer`, doubling its capacity if the string length is greater than the number of characters that can fit in the array. The position of the node where insertion must occur is found, and the respective insertion case is handled. If insertion happens inside a node, then the node is split.
+* The **complexity** of this function depends on the number of existing nodes in the state list and the length of the text added to `addBuffer`. This is linear, in the form of _O(no. of nodes + text length)_, so we can consider it **O(n)**.
 
 ```
 void delete_text(TextEditor *editor, int length)
 ```
-* Functia realizeaza _"stergerea"_ unui sir de caractere din editorul de text, aflat cu `length` caractere inaintea cursorului. Operatia se realizeaza prin retinerea 
-offset-urilor la care se afla sirul de caractere de cursor. Dupa ce se afla cele doua offset-uri se face stergerea nodului/nodurilor care contine starea de inserare a 
-textului respectiv in lista. La final se modifica pozitia cursorului.
-* **Complexitatea** functiei de `delete_text` este una liniara, respectiv **O(n)** unde n reprezinta numarul de noduri din lista care trebuie parcurse pana la gasirea 
-starii in care au fost inserate caracterele care trebuie sterse.
+* The function performs the _"deletion"_ of a character string from the text editor, located `length` characters before the cursor. The operation is performed by tracking the offsets where the character string is located relative to the cursor. Once the two offsets are found, the node(s) containing the insertion state of that text are deleted from the list. Finally, the cursor position is updated.
+* The **complexity** of the `delete_text` function is linear, **O(n)**, where n represents the number of nodes in the list that must be traversed to find the state where the characters to be deleted were inserted.
 
 ```
 char *extract_current_text(TextEditor *editor)
 ```
-* Functia realizeaza extragerea textului curent din Text Editor. Se parcurg toate nodurile din lista, apoi se verifica tipul buffer-ului, iar in functia de acesta 
-copiaza utilizand functia `memcpy` pentru a copia continutul acestora intr-un sir de caractere.
-* **Complexitatea** functiei depinde de numarul total de caractere din text, dar si numarul de noduri existent in lista de stari. Complexitatea este de tip 
-_O(nr noduri + nr caractere)_, deci **O(n)**.
+* The function performs the extraction of the current text from the Text Editor. All nodes in the list are traversed, the buffer type is checked, and based on that, the content is copied using `memcpy` into a character string.
+* The **complexity** of the function depends on the total number of characters in the text, as well as the number of existing nodes in the state list. The complexity is of the type _O(no. of nodes + no. of characters)_, thus **O(n)**.
 
 ```
 void save_current_text(TextEditor *editor, const char *filename, char **text, int *global_cursor)
 ```
-* Functia utilizeaza intern `extract_current_text` pentru a extrage textul din Text Editor sub forma unui sir de caractere. Dupa apelul functiei, sirul de caractere 
-extras se scrie intr-un fisier de iesire si ramane salvat in text, iar cursorul este actualizat. 
-* **Complexitatea** acesteia este data de apelul catre `extract_current_text`. Din acest motiv complexitatea acestei functii coincide cu cea liniara a functiei 
-anterioare, respectiv **O(n)**.
+* The function internally uses `extract_current_text` to extract the text from the Text Editor as a character string. After the function call, the extracted string is written to an output file and remains saved in text, and the cursor is updated.
+* Its **complexity** is determined by the call to `extract_current_text`. For this reason, the complexity of this function coincides with the linear complexity of the previous function, namely **O(n)**.
 
-### Functii auxiliare
+### Auxiliary Functions
 
 ```
 pieceTableNode *allocateNode(int bufferType, int bufferLength, int indexOfBuffer, pieceTableNode *nextColumn)
 ```
-* Functia aloca un nou nod in lista de stari continuta de structura `Piece Table`, mai exact este o alocare a unui nod dintr-o _lista simplu inlantuita_.
+* The function allocates a new node in the state list contained by the `Piece Table` structure; specifically, it allocates a node for a _singly linked list_.
 
 ```
 int addTextInBuffer (TextEditor *editor, char *text, int len)
 ```
-* Functia adauga un sir de caractere intr-unul dintre cele doua buffere folosind `memcpy`.
+* The function adds a character string into one of the two buffers using `memcpy`.
 
 ```
 pieceTableNode *splitNode (TextEditor* editor, pieceTableNode *node, int relativeOffset)
 ```
-* Functia imparte un nod in doua altele atunci cand inserarea din functia `add_text` se face in interior.
+* The function splits a node into two others when the insertion in `add_text` occurs internally (in the middle of a node).
 
 ```
 void findNodePositionInLinkedList(TextEditor *editor, int searchedPosition, pieceTableNode **currentColumn, pieceTableNode **previousColumn, int *relativeOffset)
 ```
-* Functia cauta pozitia unui nod in lista.
+* The function searches for the position of a node in the list.
 
 ```
 char *extractFileTextFromBuffer(char *filename, int *sizeOfTheFile)
 ```
-* Functia se extrage textul dintr-un fisier si se pune intr-un buffer temporar.
+* The function extracts text from a file and places it into a temporary buffer.
 
 ```
 void freeTextEditor (TextEditor *editor)
 ```
-* Functia elibereaza structura `TextEditor`.
+* The function frees the `TextEditor` structure.
 
 ```
 void insertNodeInLinkedList(TextEditor *editor, pieceTableNode *newNode, pieceTableNode *currentColumn, pieceTableNode *previousColumn, int relativeOffset)
 ```
-* Functia face inserarea unui nod in lista de stari, mai exat inserarea unui nod intr-o lista simplu inlantuita.
+* The function inserts a node into the state list, specifically inserting a node into a singly linked list.
 
 ```
 void removeNodeFromLinkedList(TextEditor *editor, pieceTableNode *startPositionPtr, pieceTableNode *endPositionPtr, pieceTableNode *previousStartPositionPtr, int offsetForStart, int offsetForEnd)
 ```
-* Functia face extragerea unui nod dintr-o lista de stari, indiferent de situatia in care se afla.
+* The function extracts (removes) a node from a state list, regardless of the situation it is in.
